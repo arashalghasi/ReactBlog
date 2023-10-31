@@ -19,3 +19,49 @@ whenever we use map in react or realy anything is going to dynamically change th
 prop to the outermost element in the list
 the component folder will host all the reusable components throw all the pages
 we used * for the path to the not found page to show if user insert anything but the specific urls gonna go the not found page
+
+//Nodejs why?
+because it allows us to write our backend in javaScript
+there are alot of packages to create nodejs servers which in this case we use Express, express is a very good choice for this project because
+it is unopinionated, it is easy to started with and very well documented.
+
+
+---Combine front and back
+
+we use a library called axios -> is a incredibly popular library for making network requests and it can be installed eather in the frontend
+or the backend projects and used to make any type fo request to pretty much any URL so we use this library to connect our fronte-end to the back-end
+
+first we install axios library in front-end -> npm install axios
+
+we can make request to any url we want using -> axios.get('URL') so this function make a request to our server and for getting the response 
+const response = await axios.get('URL')
+to get the data
+const data = response.data;
+
+we use useState Hook to have state and to get the data from the database we use useEffect Hook the entire use of useEffect hook is to add logic
+into our components that will be executed outside of the normal component rendering
+
+    useEffect(()=>{
+        setArticleInfo({upvotes : 3,comments :[] });
+    },[]);
+
+    the useEffect hook runs not only when the component first mounts, when the component is first added to the page
+    but it also runs whenever the component updates, and since updateing the component form inside the useEffect hook
+    our component will cought in an infinite loop and there is an easy way to prenvent this ismply by adding [] that we 
+    pass to use Effect -> the reson this empty array works basically what the useEffect hook does, is whenever any of the 
+    values that are in this array, changes the useEffect hook will execute the logic in the callback so in simple words 
+    when we pass an empty array we want just to say we only want it to call the function that we're passing, when the component
+    first mounted, when the component first added to the DOM;
+
+    when we want to use asyn operation inside useEffect hook we should make a async function inside hook then call the function because we
+    can not -> useEffect(async( => {
+        NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!!!!!
+    }))
+
+
+    we must make sure that our frontend and backend runs on the same port so -> and the simplest way to do it to add "proxy" : "http://localhost:8000/", to package.json
+    and basically it gonna make the front and back end think that they are running on the same origin
+
+
+    <AddCommentForm articleId={articleId} onArticleUpdated={updateArticle => setArticleInfo(updateArticle)}/> ------> Holy Cow moooh moooh
+    well here we pass an anonimous function
