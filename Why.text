@@ -6,3 +6,16 @@ site.
 // the fastest way to create a react app is by using a creator 
 npx create-react-app my-blog
 To run the app we use npm run start
+//package.josn that contains information about the project
+//package-lock.json that contains all the dependencis of our project
+by using a package called the react router dom  we can install that into our project 
+npm install react-router-dom
+and then in app.js we import some stuff form it like  BrowserRouter, Route, Routes  to the routing to every page
+For the artticle we use :articleId because we need a url parmameter to routes to a single distinct article
+it is very important theat we have a nav bar that the users can interact to go to the different pages
+to get the url parameter we should use a special hook called { useParams } from react-router-dom
+To display more thant one top level element we need to wrap the code in a react fragments
+whenever we use map in react or realy anything is going to dynamically change the length and order of the list, We gonna need to add a key
+prop to the outermost element in the list
+the component folder will host all the reusable components throw all the pages
+we used * for the path to the not found page to show if user insert anything but the specific urls gonna go the not found page
