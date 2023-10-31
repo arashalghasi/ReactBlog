@@ -1,0 +1,5 @@
+after creating the folder we initialize this folder as a new NPM package
+npm init -y
+then we install the express package
+so to use modern javaScript syntax such as the import and export syntax we need to install babel or just going to the package.json file and 
+add a line of code "type" : "module",
