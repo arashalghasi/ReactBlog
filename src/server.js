@@ -1,6 +1,6 @@
 import express from 'express';
 import { MongoClient, ObjectId } from 'mongodb';
-import{db, connectToDd} from './db.js';
+import { db, connectToDd } from './db.js';
 
 
 const app = express();
@@ -34,18 +34,25 @@ app.post('/api/articles/:articleId/comments', async (req, res) => {
     const { postedBy, text } = req.body;
 
     await db.collection('articles').updateOne({ name: articleId }, {
-        $push : {comments : {
-            postedBy, text
-        }},
+        $push: {
+            comments: {
+                postedBy, text
+            }
+        },
     })
 
     const article = await db.collection('articles').findOne({ name: articleId });
-    res.json(article);
+
+    if (article) {
+        res.json(article);
+    } else {
+        res.sendStatus(404);
+    }
 });
 
 const PORT = 8000;
 
-connectToDd(()=>{
+connectToDd(() => {
     console.log('successfully connected to the database');
     app.listen(PORT, () => {
         console.log(`The server is listening on port ${PORT}`)
