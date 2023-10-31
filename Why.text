@@ -1,0 +1,8 @@
+Why we use React instead of using HTML, CSS, JS ?
+React has lots of advantages over hand coding a static site.
+and it makes creating a website much simpler and much faster withoud taking away any of the fine grained control from the programmer.
+it allowd us to create modular reusable components that can be arranged to fully fucntional instead of hand coding each individual page in our
+site.
+// the fastest way to create a react app is by using a creator 
+npx create-react-app my-blog
+To run the app we use npm run start
