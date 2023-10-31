@@ -3,3 +3,84 @@ npm init -y
 then we install the express package
 so to use modern javaScript syntax such as the import and export syntax we need to install babel or just going to the package.json file and 
 add a line of code "type" : "module",
+
+after having the app object we can define different endpoints and what we want our server to do when one of those endpoints recieves a request
+we can use the postman application to test our server
+different types of the request:
+1- GET -> is used to load information such as an article content or the user's information
+2- POST -> is used to create sort of new resource on the server.
+3- PUT -> is usually used to update data on the server.
+4- ...
+
+one of the resones that we use express is that with the app object we can clearly and easily say which input which type of request is using.
+when we use the post as the response we want to work with the information in the body and to work correctly with it in a express app we must 
+add a middleware to the app which is basically just extra functionality that the sever automaticaly excecute app.use(express.json());
+this is the best way to add information to our request
+
+to fix the problem that every time we should restart our server with the changes of the server.js file there is package called nodemon that fixes
+out problem -> npm install nodemon and we want to use this package only in the development not in the production phase so -> npm install nodemon --save-dev
+we can use start our sever by npm nodemon "serverfile" and to make this command easier we can go to the package.json file and create a Script
+and we can add this in the script section -> "dev": "npx nodemon src/server.js", -> from now we can just type -> npm run dev
+
+
+mongodb why? is a non relational database which we can push javaScript data into it without the worry how the data is formatted.
+to install mongo db see the mongo db documentation in the case of the windows download the windows version and add the path of bin file to the 
+windows variables that is not very difficult, I KNOW YOU CAN DO IT:
+
+to have a local db in a folder we can start the db engin by -> mongod --dbpath "\mongo-db-data\"
+and then in another bash we can connect to it via -> mongo ---> it opens a terminal that you can write your commands ( maybe your queries who gives a fuck just learn it)
+
+
+to create a database -> use "the name of the database"
+
+now we insert the data to our local database so - > db.articles.insertMany([
+    {
+        name: 'learn-node',
+        upvotes: 0,
+        comments: [],
+
+    },
+    {
+        name: 'learn-react',
+        upvotes: 0,
+        comments: [],
+
+    },
+    {
+        name: 'mongodb',
+        upvotes: 0,
+        comments: [],
+
+    },
+])
+
+To print the data inserted -> db.articles.find() OR db.articles.find({name : 'learn-node'}).pretty() 
+name : 'learn-node' is called query object
+
+to interact with the db we need to install the mongodb driver package to our project -> npm install mongodb
+this package is allow us to do the same thing inside our node.js code as we did in mongo shell
+
+MongoClinet help us to connect to the database const client = new MongoClient('mongodb://127.0.0.1:27017');
+
+    loads the articles from the db
+    const articles = await db.collection('articles').findOne({articleId});
+
+    to update :
+        const article = await db.collection('articles').updateOne({name : articleId}, {
+        $inc : {upvotes : 1}
+    });
+
+
+to connect to the db and make server.js smaller we will create a file db.js
+
+import{db, connectToDd} from './db.js'; we need to include .js here as long as we added type ="module"
+
+connectToDd(()=>{
+
+    app.listen(PORT, () => {
+        console.log(`The server is listening on port ${PORT}`)
+    });
+    
+})
+
+in this case the server will not start up untill we successfully connected to the database
