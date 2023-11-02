@@ -130,3 +130,7 @@ into our components that will be executed outside of the normal component render
         as you can see the second argument is the body and the third is the header
 
 
+
+        the next step is to build the front end and put it in the backend foler -> npm run build
+
+
