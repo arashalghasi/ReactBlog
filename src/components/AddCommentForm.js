@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import axios from 'axios';
-const AddCommentForm = ({ articleId , onArticleUpdated}) => {
-    const [name, setName] = useState('');
+import useUser from '../hooks/useUser';
+const AddCommentForm = ({ articleId, onArticleUpdated }) => {
     const [comment, setComment] = useState('');
+    const [error, setError] = useState('');
+    const { user } = useUser();
 
     const addComment = async () => {
+        const token = user && await user.getIdToken();
+        const email = user.email;
+
+        const headers = token ? { authToken : token } : {};
+        if(comment === ''){setError('Please Write something before adding!'); return} else {setError('')};
         const response = await axios.post(`/api/articles/${articleId}/comments`, {
-            postedBy: name,
+            postedBy: email,
             text: comment
-        });
+        }, { headers });
         const updatedArticle = response.data;
         onArticleUpdated(updatedArticle);
-        setName('');
         setComment('');
     }
     return (
@@ -20,13 +26,10 @@ const AddCommentForm = ({ articleId , onArticleUpdated}) => {
                 <h3>
                     Add a Comment
                 </h3>
+                {error && <p className='error'>{error}</p>}
+                {user && <p>You are Posting as {user.email}</p>}
                 <label>
-                    Name:
-                    <input value={name} onChange={e => setName(e.target.value)} type='text' placeholder='Name ...' />
-                </label>
-                <label>
-                    Comment:
-                    <input value={comment} onChange={e => setComment(e.target.value)} type='text' row='4' height='50' placeholder='Name ...' />
+                    <textarea value={comment} onChange={e => setComment(e.target.value)} type='text' rows='4' cols='50' placeholder='Type here ...' required/>
                 </label>
                 <button onClick={addComment}>Add Comment</button>
             </div>

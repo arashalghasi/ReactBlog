@@ -65,3 +65,68 @@ into our components that will be executed outside of the normal component render
 
     <AddCommentForm articleId={articleId} onArticleUpdated={updateArticle => setArticleInfo(updateArticle)}/> ------> Holy Cow moooh moooh
     well here we pass an anonimous function
+
+
+
+    To add basic user authentication we use fireBase
+    firebase authentication does storing the user information and thier password
+
+    To connect our app to firebase/auth we need first install the firebase package via npm -> npm install firebase
+
+
+    Then, initialize Firebase and begin using the SDKs for the products you'd like to use.
+    then we should copy and paste the code firebase give us and it goes to the entry point of our react app which is index.js
+
+
+    then we must create two pages one for login and another for createAccount and then we must create a custom hook that in the future
+    to understand which user is loged in 
+
+    to navigate programmaticaly in react app we use useNavigate from react-router-dom
+
+    after doing the login page we should go the article page and find out the user is logged in or not and we provide two simple
+    services for who is loged in that if logIn then the user can upvote one time an article and can comment an article by using the credentials we can
+    find out who writes a commen ---> and thats why we need a custom hook like useUser (custom hook in react are hooks that they have hooks
+    inside of them)
+
+
+    in order to know who is the current user in firebase we need to subscribe using a function called onAuthStateChanged
+    the way onAuthStateChanged function works: we can call it and we can pass a callback to it and basically whenever the user
+    changes their auth state eihter by logging in or logging out or creating an account the callback function that we pass to it 
+    will be called
+
+            const unsubscribe= onAuthStateChanged(getAuth(), user =>{
+            setUser(user);
+            setIsLoading(false);
+        })
+
+        the user is or the user object in fire base which means the user is loggedin  or is null whick means the user did not logged in
+        return unsubscribe; 
+        so when we call the function we unsubscribe the user when the user leaves the DOM because the function is in a useEffect hook so
+        and we pass [] to the second argument of useEffect which make sure that only subscribe to auth state changes when the component first
+        calls this useUser hook and it will not get called every time the component updates.
+
+        to create an account we need two functions ---> getAuth() that just give us a reference to the current firebase off object
+        createUserWithEmailAndPassword
+
+        so now we added route protection in server-side now we need to add the authToken to the header of the requests so this is the
+        proof that the user logged in to our server
+
+        this is how we include the header to a get request 
+                    const response = await axios.get(`/api/articles/${articleId}`, {
+                headers : {authToken : token},
+            });
+
+        this is how to include the header to the put request 
+         const response = await axios.put(`/api/articles/${articleId}/upvote`, null,{headers} );
+         null is body
+
+         this is how to include the header to the post request
+
+                 const response = await axios.post(`/api/articles/${articleId}/comments`, {
+            postedBy: name,
+            text: comment
+        }, { headers });
+
+        as you can see the second argument is the body and the third is the header
+
+
