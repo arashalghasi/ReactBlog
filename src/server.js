@@ -1,50 +1,107 @@
 import express from 'express';
-import { MongoClient, ObjectId } from 'mongodb';
 import { db, connectToDd } from './db.js';
+import fs from 'fs';
+import admin from 'firebase-admin';
+
+const credentials = JSON.parse(
+    fs.readFileSync('./credentials.json')
+);
+
+admin.initializeApp({
+    credential: admin.credential.cert(credentials),
+})
 
 
 const app = express();
 app.use(express.json());
 
-app.put('/api/articles/:articleId/upvote', async (req, res) => {
-    const { articleId } = req.params;
+app.use(async (req, res, next) => {
+    const { authtoken } = req.headers;
+    if (authtoken) {
+        try {
+            req.user = await admin.auth().verifyIdToken(authtoken);
+        } catch (error) {
+            return res.sendStatus(400);
+        }
+    }
 
-    await db.collection('articles').updateOne({ name: articleId }, {
-        $inc: { upvotes: 1 }
-    });
+    req.user = req.user || {};
+    next();
+})
 
-    const article = await db.collection('articles').findOne({ name: articleId });
-    res.json(article);
-});
+
 
 app.get('/api/articles/:articleId', async (req, res) => {
     const { articleId } = req.params;
+    const { uid } = req.user;
 
     const article = await db.collection('articles').findOne({ name: articleId });
-
     if (article) {
+        const upvoteIds = article.upvoteIds || [];
+        article.canUpvote = uid && !upvoteIds.includes(uid);
         res.json(article);
     } else {
         res.sendStatus(404);
     }
 });
 
+
+app.use(async (req, res, next) => {
+    if(req.user){
+        next();
+    } else {
+        res.send(401);
+        // 401 means the user can not access that resource
+    }
+})
+
+app.put('/api/articles/:articleId/upvote', async (req, res) => {
+    const { articleId } = req.params;
+    const {uid}  = req.user;
+
+    const article = await db.collection('articles').findOne({ name: articleId });
+    
+    if (article) {
+        const upvoteIds = article.upvoteIds || [];
+        const canUpvote = uid && !upvoteIds.includes(uid);
+        if(canUpvote){
+            await db.collection('articles').updateOne({ name: articleId }, {
+                $inc: { upvotes: 1 },
+                $push: {upvoteIds : uid}
+            });
+        }
+
+        const UpdatedArticle = await db.collection('articles').findOne({ name: articleId });
+        res.json(UpdatedArticle);
+
+    } else {
+        res.sendStatus(404);
+    }
+
+;
+
+
+  
+});
+
 app.post('/api/articles/:articleId/comments', async (req, res) => {
     const { articleId } = req.params;
-    const { postedBy, text } = req.body;
+    const { text } = req.body;
+    const { email } = req.user;
+    const {postedBy} = req.body;
 
     await db.collection('articles').updateOne({ name: articleId }, {
         $push: {
             comments: {
-                postedBy, text
+                postedBy : email, text
             }
         },
     })
 
-    const article = await db.collection('articles').findOne({ name: articleId });
+    const UpdatedArticle = await db.collection('articles').findOne({ name: articleId });
 
-    if (article) {
-        res.json(article);
+    if (UpdatedArticle) {
+        res.json(UpdatedArticle);
     } else {
         res.sendStatus(404);
     }

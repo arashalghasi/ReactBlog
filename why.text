@@ -84,3 +84,33 @@ connectToDd(()=>{
 })
 
 in this case the server will not start up untill we successfully connected to the database
+
+we need to firebase to our backend as well
+we want to incorprate firebase auth into our node js server so that we can do things so we can make sure the suers can not upvote an article
+mroe than one time  and make sure the users can add comments just when they are logged in
+so we need to create a private in firebase that our server can use to connect to firebase auth from our server.
+
+then we need use the credentials to do the server to connect to the firebase/auth -> npm install firebase-admin
+
+admin.initializeApp({
+    credential: admin.credential.cert(credentials),
+})
+
+here we are saying firebase-admin what credentials should use to connect to the firebase auth
+
+so after connecting to firebase we should protect our endpoint to make sure the user can upvote once and can add comment after loggen in
+so from client side we need an auth token which will come by axios with the request -> the auth token is just how the front end proves
+that the user is logged in and who they are
+
+we need the expres middleware to automaticaly load the information whenever we recieve a requent to our server
+so this is how to make a middleware in express app.use((req,res,next))
+the next callback function does when we are done processing things in the the middleware and we want the program to go on to actual route
+handlers 
+
+as long as we made the middleware and we have the user in every endpoint we can have the id of the user by const {uid}  = res.user;
+
+the upvote endpoint and comment endpoint have the same criteria which is if the users is not logged in the user can not upvote and add comment
+so we need to add a new middleware
+
+
+You do not believe I was doing 1 hour debuggin for req.headers; it was req.header; just an s porca miseria
