@@ -114,3 +114,32 @@ so we need to add a new middleware
 
 
 You do not believe I was doing 1 hour debuggin for req.headers; it was req.header; just an s porca miseria
+
+So we add the build to backend app.use(express.static(path.join(__dirname, '../build')));
+because we added type module to package.json  __dirname will not work by default
+
+we need to add the route handler  like frontend to the backend  using a regular expression as well so 
+app.get(/^(?!\/api).+/,(req,res)=>{
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+})
+
+so all these is for when a browser send a request to our sever that is not going to api route we are going to send back the index.html
+which will take care of loading our react script and rendering our react app
+
+now we should run the server and be able to access our react app simply by sending a request to our server
+
+const PORT = process.env.PORT || 8000;
+this will allow the hosting platform to specify the port
+
+before publishing we should how mongo db  because we are hosting mongo db localy so we use mongodb atlas
+after creating a project in mongoatlas we sould make an environmental file .env
+
+in order to automaticaly load the environment variables from .env file -> npm install dotenv
+
+app.yaml file just going to tell google cloud what sort of environment oru project needs to run in and it is also a good place
+to specify environment variables.
+
+so after installing google cloud cli
+we need connect to it -> gcloud auth login
+we need to choose the project --> gcloud config set project "project name"
+to deploy it ---> gcloud app deploy
