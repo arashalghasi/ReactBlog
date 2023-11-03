@@ -143,3 +143,261 @@ so after installing google cloud cli
 we need connect to it -> gcloud auth login
 we need to choose the project --> gcloud config set project "project name"
 to deploy it ---> gcloud app deploy
+
+
+another option is to publish our app to digital ocean vps
+
+server? it is a computer and i can make it a server because I can make the computer respond to some sort of formulated requests
+so with using of node we can ceate a local server 
+so for read use these day because of the matter of accessability we use cloud computing
+the secret of cloud computing works that I can rent some resource for my personal use is 
+virtualization -> dividing a server resource into virtual computers
+virtual machine -> digital version of physical computer
+vps -> virtual prvate server
+
+how to connect to our ssh bought on digital ocean --> using ssh (socket secure shell) --> private key and public key as like connecting
+to the github  which is a communication between two system by sendig request which in this case my wsl has the ssh private key and the vps 
+on digital ocean hase the public key  ---> ssh key can be anywhere on the system but by the convension we put it in .ssh folder in home directory
+ to make a ssh key ---> ssh-keygen so then we keep safe the private key in our system and to digital ocean by pasting the public key on digital
+ ocean site
+ ssh to our vps by ssh private key ---> ssh -i ~/.ssh/"name of the privte key" root@<Ip>
+ so instead of every time directing and passing the ssh private key let's make it automate ---> using and ssh agent
+ so we need to create config file in .ssh and ---> Host * 
+                                                    addKeysToAgent yes
+                                                    UseKeyChain yes
+                                                    IdentityFile ~/.ssh/'privatekey'
+
+so to add a ssh to ssh-keychain ---> ssh.add then the private key
+
+Terminology in networking 
+TPC --> transmission control portocol
+UDP --> user datagram portocol
+ICMP --> internet control message portocol ---> built on tcp/udp 
+packet --> unit of data 
+DNS --> domain name system
+nameserver --> hold DNS records to translate domain names into ip addresses
+A record --> maps name to IP addresses
+CNAME --> maps name to name
+Port --> comminucation endpoint that maps to specific process on network service
+firewall:  a network security device that monitors incoming and outgoing network traffic and devices
+
+to see the wellKnown ports : less /etc/services
+we can use a protocol nmap to see which port of a system are providing services
+to install namp --> sudo apt install nmap
+nmap <ipAddress>
+to see extra/version information --> nmap -sV <ipAddress>
+
+
+
+
+
+
+URL --> uniform resource locator   https://cv.arashalghasi.me/en/fullStack?test=true
+cv.arashalghasi.me is subdomain
+arashalghasi.me is domain
+.me ---> tld (top level domain)
+/en/fullStack --> path
+test=true --> query parameter
+
+
+the difference between tcp an update
+tcp has the handshake syn-syn ack- ack
+udp request - response  using streaming like youtube
+
+some network commands
+nslookup "siteURL" to find out where the server is mapped to
+to dig these information --->  dig "siteURL"
+
+
+next buying a domain (nameCheap) with a register --> udpate the nameserver to use digital ocean --> on digital ocean add two records with
+your ip address @ and www
+
+
+first approch in vps
+apt update
+apt upgrade 
+shutdown now -r (flag r for restart)
+
+then to update apt ---> curl https://deb.nodesource.com/setup_19.x | sudo -E bash -
+
+create a user in vps  because we are running as root (whoami command) and we have all the permissions and that is dangerous
+to create a new user in vps -->  adduser <username>
+to add user to sudo group --> usermod -aG sudo <username>
+swich user --> su <username>
+check sudo access ---> sudo cat /var/log/auth.log
+after creating the user we can use sudo (super user do) allows us to run commands and programs as root
+
+then we want block access to the root to the public so in our home vps directory we want to create a authorized_keys file
+and paste the public key in it
+so form now on form wsl to connect to vps -->  ssh <vps username not root>@<ip>
+to change file permisson in vps --> chmod 644 ~/.ssh/authorized_keys
+read,write,execute (4 --> read, 2, write --> 1---> execute) (user,group, every) so in this case user --> read and write, group and everyelse just read
+owner    group   everyboyelse  read   write    execute
+rwx       rwx      rwx          4       2         1
+disable root login --> sudo vi /etc/ssh/sshd_config --> in the file changing PermitRootLogin to ---> no
+restart ssh deamon --> sudo service sshd restart
+
+
+so now we need a web server ---> nginx and apache
+nginx --> web server , reverse proxy, forward proxy, email proxy , written in c
+reverse proxy --> when a request comes from internet to our vps it should go to a specific place and thats why we need a webserver to handle routing this problem
+
+
+to install nginx --> sudo apt install nginx
+to start nginx ---> sudo service nginx start
+then put the ip address your vps digital ocean that you can find it in your droplet and put it in the browser ---> holy shut
+
+nginx configration --> less /etc/nginx/sites-available/default
+root /var/www/html  --> base directory for requests
+
+location / {
+    blablabla
+}
+
+this is the location block and it says where i am going form the path so we can routing within nginx or routing in our server which is node
+
+Application setup
+1. Establish application file system
+2. Enable version control
+3. Create a node.js server
+
+first we need to change ownership of /www of root directroy of our web server nginx ---> sudo chown -R $USER:$USER /var/www
+then make an application directory --> mkdir /var/www/app
+then git init and pull our code from github
+
+so after creating our node server on piece is missing which is the we have the node server and we have the nginx server but how can they communicate
+between them 
+
+so we need to create a new nginx server and proxy request --> sudo vim /etc/nginx/site-enabled-"whatever you call it"
+
+server {
+    listen 80 default_server; --> we want to listen on port 80
+    listen [::]:80 default_server; --> [::]:80 is IPv6 so we are listening on both
+
+    root /var/www/html;
+    index index.html;  ---> this is the file it goes to look for first
+
+    server_name <my_domain>;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000; --> at the end the nginx is jsut the route handler it say if you want to go there ok go
+    }
+}
+
+
+so we created a virtual host / virtual server  ---> it is a fake server created by nginx ---> we can create infinite server on top of our server
+then on top of the server which ..... which is on digital ocean.
+ 
+
+ so at this point need to modify the nginx config --> /etc/nginx/nginx.config
+ it is the virtual host config
+
+ we add include /etc/nginx/sites-enabled/'whatever you called the file'
+ to test if nginx works correctly --> sudo nginx -t
+ to restrat the web server --> sudo service nginx restart
+
+ so we need a way that node server run continously ---> PM2 (process management)
+
+ to install pm2  --> sudo npm i -g pm2
+pm2 start server.js --watch
+pm2 list
+pm2 save --> gonna save our process list
+pm2 startup
+
+(rememeber to isntall node at the first place from apt incase of outdated update apt first)
+
+version control system (vcs) --> git/github 
+so ssh to git hub and then ---> make sure the git uses the new ssh key you creted by modifying the ssh config in .ssh
+change permission of config to 600 
+change the permission of the private key to 600
+
+
+to have a firewall --> ufw (uncomplicated firewall)
+ufw (allow, deny, reject) (ssh,https,http)
+---> sudo ufw status
+---> sduo ufw allow ssh
+---> sddo ufw allow http
+---> sudo ufw enable
+
+
+to keep the operation system uptodate --> sudo apt install unattended-upgrades --> sudo dpkg-reconfigure --priority=low unattended-upgrades
+
+CI/CD --> Continous integration/continous Delivery - Continous deployment
+Continous integration --> code changes are validate and maerged back into main branch as often as possible
+continous delivery --> code changes are automatically build and ready for production
+continous deployment --> builds are automatically deploy to production environment
+
+
+cron --> execute commands on a schedule --> https://crontab.guru/
+to do cron job --> crontab -e
+add the new line at the end --> */2 * * * * sh /var/www/app/github.sh 2>&1 | logger -t github.sh
+in github.sh ---> #! /usr/bin/bash
+                    cd /var/www/app/
+                    git pull origin main --ff-only
+
+standard streams :
+standard output --> stdout
+standard nput ---> stdin
+standard error ---> stderr
+
+redirection:
+| read from stdout
+> write stdout to file
+>> append stdout to file
+< read form stdin
+2>&1 redirect both stderr and stdout
+
+
+websocekts : Persistent bidirectional connection between client and server
+
+first thing we need go to the default server /etc/ngin/ ... and we should 
+
+location / {
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header connection "upgrade";
+    proxy_pass http://127.0.0.1:3000;
+}
+
+then we should restart nginx so at this point we made the server to do it for us
+
+to make the server in node 
+
+const express = require('express');
+const server = require('http').createServer();
+const app = express();
+
+app.get('/',(req,res)=>{
+    res.sendFile('index.html',(root:__dirname));
+});
+
+server.on('request',app);
+server.listen(3000, () => {
+    console.log('Listening on 3000!');
+});
+
+to install the websocket library ---> npm install ws
+
+const webSocketServer = require('ws').Server;
+
+const wss = new webSocketServer({server : server});
+
+wss.on('connection', function connection(ws){
+    const numClients = wss.clients.size;
+    console.log('Client Connected', numClients);
+    wss.broadcast(`Current visitors: ${numClients}`);
+
+    if (ws.readyState === ws.OPEN){
+        ws.send(Welcome to my server');
+    }
+
+    ws.on('close'function close(){
+        wss.broadcast(`Current visitors: ${numClients}`);
+        console.log('A client has disconnected')
+    });
+});
+
+wss.broadcast = (data) => {
+    wss.clients.forEach((client)=>{
+        clients.sent(data);
+    })
+}
