@@ -134,3 +134,80 @@ into our components that will be executed outside of the normal component render
         the next step is to build the front end and put it in the backend foler -> npm run build
 
 
+
+websocket the front end part :
+ when it is on https we say the proto is wss (web socket secure)
+let ws;
+const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+ws = new WebSocket(`${proto}://${window.location.host}`);
+
+ws.onmessage = (event) => {
+    console.log(event.data);
+}
+
+to stop the pm2 process manger --> pm2 stop app.js
+to start it again --> pm2 start 'the name of the server' --watch ---> pm2 save
+
+Data base to save the visitors to our website
+
+
+HTTP --> Hyper Text Transfer Protocol  request_____<>_______ response
+
+status code 
+1xx information
+2xx success
+3xx redirect
+4xx Client error
+5xx Server error
+
+
+
+to make our server http --> https--- > CertBot --> open firewall --> sudo ufw allow https
+
+Cotainer ---> the way we can build microservices is by containization , the amazing about container is they do not care what operatiog system
+they are on
+Microservice --> software architecture of loosy connected services
+Monolith --> Software architecture o tightly coupled services
+
+we use Docker
+
+How to make a Docker container  -->  we need to write a docker file 
+
+--> cd /var/www/'nameOfOurFOlder' 
+vim Dockerfile
+
+FROM node:19-alpine3.16 //you can find the version by searching your node version on the internet
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+WORKDIR /home/node/app
+COPY --chown=node:node package*.json ./
+USER node
+RUN npm install
+COPY --chown=node:node . .
+EXPOSE 3000
+CMD [ "node", "app.js" ]
+
+
+to install docker ---> sudo apt install docker.io to build docker ---> sudo docker build -t  "give a name to the docker" . --> do not forget dot
+
+to see the docker created ---> sudo docker image ls
+
+to run docker --> sudo docker run -d -p 3000:3000 
+we need to stop pm2 because now occupying the port 3000
+(-d the flag that tells the docker to run in the background  
+-p specifies the open ports 3000:3000 out side port (or the current server): inside port (container port))
+
+
+Display the running processes --> htop
+
+to add load balancer ---> go to nginx config file --> inside the http block 
+
+upstream nodebackend {
+    server localhost: 3000;
+    server localhost: 3001;
+}
+
+and then we should modify the file in site-enaibled 
+
+delted the proxy_pass we type  --> proxy_pass http://nodebackend; --> so we let nginx to decide for the load balancer
+
+----> sudo service nginx restart
